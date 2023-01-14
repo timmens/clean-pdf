@@ -38,15 +38,17 @@ def add_rectangle(
 @click.argument("path", type=click.Path(exists=True))
 @click.option("--new-path", type=click.Path(), default=None)
 @click.option("--position", type=click.Tuple([int]), default=None)
-@click.option("--exclude", type=click.Tuple([int]), default=None)
+@click.option("--exclude", type=str, default=None)
 @click.option("--overwrite", is_flag=True, default=False)
 def update_pdf(
     path: Path,
     new_path: Path = None,
     position: tuple = None,
-    exclude: tuple = None,
+    exclude: str = None,
     overwrite: bool = False,
 ) -> None:
+    
+    exclude = [int(n) for n in exclude.split(",")] if exclude is not None else None
 
     document = fitz.open(path)
     document = add_rectangle(document, position=position, exclude=exclude)
@@ -55,6 +57,8 @@ def update_pdf(
         document.saveIncr()
     elif new_path is None:
         new_path = click.prompt("Path to save new pdf to")
+        document.save(new_path)
+    else:
         document.save(new_path)
 
 
